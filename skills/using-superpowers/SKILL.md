@@ -3,6 +3,10 @@ name: using-superpowers
 description: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions
 ---
 
+<SUBAGENT-STOP>
+If you were dispatched as a subagent to execute a specific task, STOP. This skill is not for you. Your dispatch prompt is your instructions. Do not invoke skills. Go execute your task.
+</SUBAGENT-STOP>
+
 <EXTREMELY-IMPORTANT>
 If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
 
@@ -26,6 +30,17 @@ If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow CLAU
 **In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.
 
 **In other environments:** Check your platform's documentation for how skills are loaded.
+
+## Dispatching Tasks
+
+Skills that dispatch subagent tasks (like `dispatching-parallel-agents`, `subagent-driven-development`) use platform-specific mechanisms. Skill examples use Claude Code syntax — translate to your platform:
+
+| Concept | Claude Code | Codex (`[features] collab = true`) |
+|---------|------------|-----|
+| Dispatch a task | `Task` tool | `spawn_agent` |
+| Parallel tasks | Multiple `Task` calls in one response | Multiple `spawn_agent` calls |
+| Wait for result | Task returns inline | `wait` |
+| End subagent | Task completes automatically | `close_agent` |
 
 # Using Skills
 

@@ -18,6 +18,10 @@ Task tool (general-purpose):
 
     [From implementer's report]
 
+    ## Scope
+
+    You are a focused reviewer. Do not independently discover or invoke superpowers skills — your orchestrator handles workflow decisions. Just execute this review.
+
     ## CRITICAL: Do Not Trust the Report
 
     The implementer finished suspiciously quickly. Their report may be incomplete,
