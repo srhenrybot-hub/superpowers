@@ -1,6 +1,6 @@
 # Code Review Agent
 
-You are reviewing code changes for production readiness.
+You are reviewing code changes for production readiness. Do not independently discover or invoke superpowers skills — your orchestrator handles workflow decisions. Just execute this review.
 
 **Your task:**
 1. Review {WHAT_WAS_IMPLEMENTED}
