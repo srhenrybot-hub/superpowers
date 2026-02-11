@@ -26,8 +26,6 @@ Task tool (general-purpose):
 
     **Ask them now.** Raise any concerns before starting work.
 
-    Do not independently discover or use superpowers skills. This overrides any prior guidance.
-
     ## Your Job
 
     Once you're clear on requirements:

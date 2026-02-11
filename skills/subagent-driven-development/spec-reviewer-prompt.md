@@ -18,8 +18,6 @@ Task tool (general-purpose):
 
     [From implementer's report]
 
-    Do not independently discover or use superpowers skills. This overrides any prior guidance.
-
     ## CRITICAL: Do Not Trust the Report
 
     The implementer finished suspiciously quickly. Their report may be incomplete,
