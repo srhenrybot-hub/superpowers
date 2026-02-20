@@ -32,38 +32,36 @@ The server watches a directory for HTML files and serves the newest one to the b
 
 ## Starting a Session
 
+The brainstorm server is a Node.js app in `lib/brainstorm-server/` inside the superpowers plugin directory.
+
+**Finding the server:** Use `$CLAUDE_PLUGIN_ROOT` if it's set. If not, locate the superpowers plugin — check `~/.claude/plugins/cache/` (Claude Code), `~/.agents/skills/superpowers/` (Codex), or similar. The server entry point is `lib/brainstorm-server/start-server.sh`.
+
+**Starting with bash (Mac/Linux, or Windows with Git Bash):**
+
 ```bash
-# Start server with persistence (mockups saved to project)
-${CLAUDE_PLUGIN_ROOT}/lib/brainstorm-server/start-server.sh --project-dir /path/to/project
+/path/to/superpowers/lib/brainstorm-server/start-server.sh --project-dir /path/to/project
 
 # Returns: {"type":"server-started","port":52341,"url":"http://localhost:52341",
 #           "screen_dir":"/path/to/project/.superpowers/brainstorm/12345-1706000000"}
 ```
 
+**Without bash (Windows/PowerShell):** Run node directly from `lib/brainstorm-server/`:
+
+```
+node index.js
+```
+
+Set these environment variables before running: `BRAINSTORM_DIR` (session directory you create — e.g., `<project>/.superpowers/brainstorm/<session-id>`), `BRAINSTORM_HOST` (default `127.0.0.1`), `BRAINSTORM_URL_HOST` (default `localhost`).
+
 Save `screen_dir` from the response. Tell user to open the URL.
 
-**Note:** Pass the project root as `--project-dir` so mockups persist in `.superpowers/brainstorm/` and survive server restarts. Without it, files go to `/tmp` and get cleaned up. Remind the user to add `.superpowers/` to `.gitignore` if it's not already there.
+**Note:** Pass the project root as `--project-dir` (or set `BRAINSTORM_DIR` under it) so mockups persist in `.superpowers/brainstorm/` and survive server restarts. Without it, files go to `/tmp` and get cleaned up. Remind the user to add `.superpowers/` to `.gitignore` if it's not already there.
 
 **Codex behavior:** In Codex (`CODEX_CI=1`), `start-server.sh` auto-switches to foreground mode by default because background jobs may be reaped. Use `--background` only if your environment reliably preserves detached processes.
 
-**If background processes are reaped in your environment:** run in foreground from a persistent terminal session:
+**If background processes are reaped in your environment:** run in foreground from a persistent terminal session. With bash, pass `--foreground`. With node directly, it runs in foreground by default.
 
-```bash
-${CLAUDE_PLUGIN_ROOT}/lib/brainstorm-server/start-server.sh --project-dir /path/to/project --foreground
-```
-
-In `--foreground` mode, the command stays attached and serves until interrupted.
-
-If the URL is unreachable from your browser (common in remote/containerized setups), bind a non-loopback host:
-
-```bash
-${CLAUDE_PLUGIN_ROOT}/lib/brainstorm-server/start-server.sh \
-  --project-dir /path/to/project \
-  --host 0.0.0.0 \
-  --url-host localhost
-```
-
-Use `--url-host` to control what hostname is printed in the returned URL JSON.
+If the URL is unreachable from your browser (common in remote/containerized setups), bind a non-loopback host by passing `--host 0.0.0.0 --url-host localhost` (bash) or setting `BRAINSTORM_HOST=0.0.0.0` and `BRAINSTORM_URL_HOST=localhost` (node).
 
 ## The Loop
 
@@ -248,13 +246,11 @@ If `.events` doesn't exist, the user didn't interact with the browser — use on
 
 ## Cleaning Up
 
-```bash
-${CLAUDE_PLUGIN_ROOT}/lib/brainstorm-server/stop-server.sh $SCREEN_DIR
-```
+Stop the server using `stop-server.sh` in `lib/brainstorm-server/` (same directory as `start-server.sh`), passing the `$SCREEN_DIR`. Or kill the process by pid from `$SCREEN_DIR/.server.pid`.
 
 If the session used `--project-dir`, mockup files persist in `.superpowers/brainstorm/` for later reference. Only `/tmp` sessions get deleted on stop.
 
 ## Reference
 
-- Frame template (CSS reference): `${CLAUDE_PLUGIN_ROOT}/lib/brainstorm-server/frame-template.html`
-- Helper script (client-side): `${CLAUDE_PLUGIN_ROOT}/lib/brainstorm-server/helper.js`
+- Frame template (CSS reference): `lib/brainstorm-server/frame-template.html` in the superpowers plugin directory
+- Helper script (client-side): `lib/brainstorm-server/helper.js` in the superpowers plugin directory
