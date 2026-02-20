@@ -306,6 +306,7 @@ digraph when_flowchart {
 - Non-obvious decision points
 - Process loops where you might stop too early
 - "When to use A vs B" decisions
+- **Behavioral gates** — decision diamonds in process flows act as enforcement mechanisms, not just documentation. Testing showed agents follow graphviz gates more reliably than prose instructions alone (writing-plans: 2/5 → 5/5 compliance after adding a process diagram with a gate diamond).
 
 **Never use flowcharts for:**
 - Reference material → Tables, lists
@@ -483,6 +484,18 @@ Write code before test? Delete it. Start over.
 - Delete means delete
 ```
 </Good>
+
+### Use GATE Markers for Non-Optional Decision Points
+
+Label decision points that must not be silently bypassed with `**GATE —**` followed by the constraint:
+
+```markdown
+**GATE — Do not elide without permission.** If you believe
+the review loop can be safely skipped, you MUST ask the user
+before proceeding. Present your reasoning and wait for their answer.
+```
+
+Agents treat GATE-marked instructions as harder constraints than unmarked prose. Pair with a decision diamond in the process flow diagram for strongest effect.
 
 ### Address "Spirit vs Letter" Arguments
 
