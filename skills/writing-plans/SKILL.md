@@ -166,15 +166,19 @@ After completing each chunk of the plan:
 
 After saving the plan:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Ready to execute?"**
+**1. Record context.** Before anything else, verify all artifacts are saved and the plan is self-contained:
+- Spec document path (if one was written)
+- Plan document path
+- Key architectural decisions, constraints, or user preferences that affect implementation but aren't captured in the plan — add them to the plan now
 
-**Execution path depends on harness capabilities:**
+**2. Advise compaction.** Execution works better with a fresh window. Tell the user:
 
-**If harness has subagents (Claude Code, etc.):**
-- **REQUIRED:** Use superpowers:subagent-driven-development
-- Do NOT offer a choice - subagent-driven is the standard approach
-- Fresh subagent per task + two-stage review
+> "The plan is saved to `docs/superpowers/plans/<filename>.md`. Before we start implementation, I recommend compacting this session — execution works better with a fresh window."
 
-**If harness does NOT have subagents:**
-- Execute plan in current session using superpowers:executing-plans
-- Batch execution with checkpoints for review
+**3. Give exact continuation prompt.** Tell the user exactly what to say after compacting. Use the actual filename, not a placeholder.
+
+If you can dispatch subagents (Claude Code, etc.):
+
+> "After compacting, say: **Execute the plan at `docs/superpowers/plans/<filename>.md` using subagent-driven-development.**"
+
+If you cannot dispatch subagents, ask the user: "The plan is ready. I can't dispatch subagents in this environment — should I execute the tasks in this thread?"

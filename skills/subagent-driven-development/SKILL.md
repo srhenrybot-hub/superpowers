@@ -7,6 +7,8 @@ description: Use when executing implementation plans with independent tasks in t
 
 Execute plan by dispatching fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.
 
+Scale the review process to the task. A one-line config change doesn't need the same review rigor as a new subsystem. **GATE — when you believe review stages or the final reviewer can be safely collapsed or elided, ask the user for permission.** Do not elide silently, and do not replace a skipped review subagent with orchestrator judgment — the orchestrator never implements or reviews code.
+
 **Core principle:** Fresh subagent per task + two-stage review (spec then quality) = high quality, fast iteration
 
 ## When to Use
@@ -47,26 +49,34 @@ digraph process {
         "Implementer subagent asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer subagent implements, tests, commits, self-reviews" [shape=box];
+        "Two-stage review warranted?" [shape=diamond];
+        "Ask user permission\nto elide or collapse reviews" [shape=box];
         "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
         "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
         "Implementer subagent fixes spec gaps" [shape=box];
         "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
         "Code quality reviewer subagent approves?" [shape=diamond];
         "Implementer subagent fixes quality issues" [shape=box];
-        "Mark task complete in TodoWrite" [shape=box];
+        "Mark task complete in your task list" [shape=box];
     }
 
-    "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
+    "Read plan, extract all tasks with full text, note context, create your task list" [shape=box];
     "More tasks remain?" [shape=diamond];
+    "Final reviewer warranted?" [shape=diamond];
+    "Ask user permission\nto elide final review" [shape=box];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
+    "Check in with user\nbefore finishing" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Read plan, extract all tasks with full text, note context, create your task list" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Implementer subagent asks questions?" -> "Implementer subagent implements, tests, commits, self-reviews" [label="no"];
-    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)";
+    "Implementer subagent implements, tests, commits, self-reviews" -> "Two-stage review warranted?";
+    "Two-stage review warranted?" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="yes"];
+    "Two-stage review warranted?" -> "Ask user permission\nto elide or collapse reviews" [label="no — may be\noverkill"];
+    "Ask user permission\nto elide or collapse reviews" -> "Mark task complete in your task list";
     "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
     "Spec reviewer subagent confirms code matches spec?" -> "Implementer subagent fixes spec gaps" [label="no"];
     "Implementer subagent fixes spec gaps" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="re-review"];
@@ -74,11 +84,15 @@ digraph process {
     "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
     "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
     "Implementer subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
-    "Code quality reviewer subagent approves?" -> "Mark task complete in TodoWrite" [label="yes"];
-    "Mark task complete in TodoWrite" -> "More tasks remain?";
+    "Code quality reviewer subagent approves?" -> "Mark task complete in your task list" [label="yes"];
+    "Mark task complete in your task list" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
-    "Dispatch final code reviewer subagent for entire implementation" -> "Use superpowers:finishing-a-development-branch";
+    "More tasks remain?" -> "Final reviewer warranted?" [label="no"];
+    "Final reviewer warranted?" -> "Dispatch final code reviewer subagent for entire implementation" [label="yes"];
+    "Final reviewer warranted?" -> "Ask user permission\nto elide final review" [label="no — may be\noverkill"];
+    "Ask user permission\nto elide final review" -> "Check in with user\nbefore finishing";
+    "Dispatch final code reviewer subagent for entire implementation" -> "Check in with user\nbefore finishing";
+    "Check in with user\nbefore finishing" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
 
@@ -128,7 +142,7 @@ You: I'm using Subagent-Driven Development to execute this plan.
 
 [Read plan file once: docs/superpowers/plans/feature-plan.md]
 [Extract all 5 tasks with full text and context]
-[Create TodoWrite with all tasks]
+[Create your task list with all tasks]
 
 Task 1: Hook installation script
 
@@ -233,7 +247,7 @@ Done!
 
 **Never:**
 - Start implementation on main/master branch without explicit user consent
-- Skip reviews (spec compliance OR code quality)
+- Skip any review without explicit user permission
 - Proceed with unfixed issues
 - Dispatch multiple implementation subagents in parallel (conflicts)
 - Make subagent read plan file (provide full text instead)
@@ -258,7 +272,7 @@ Done!
 
 **If subagent fails task:**
 - Dispatch fix subagent with specific instructions
-- Don't try to fix manually (context pollution)
+- Don't try to fix manually — the orchestrator never implements or reviews code (context pollution)
 
 ## Integration
 

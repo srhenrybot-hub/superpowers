@@ -123,7 +123,8 @@ After writing the spec document:
 
 **Implementation:**
 
-- Invoke the writing-plans skill to create a detailed implementation plan
+- Check in with the user before transitioning: "The design is ready. Want me to move on to writing the implementation plan?"
+- On confirmation, invoke the writing-plans skill
 - Do NOT invoke any other skill. writing-plans is the next step.
 
 **Design for isolation and clarity:**
