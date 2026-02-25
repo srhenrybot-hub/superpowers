@@ -1,157 +1,138 @@
-# Superpowers
+# Pathfinder
 
-Superpowers is a complete software development workflow for your coding agents, built on top of a set of composable "skills" and some initial instructions that make sure your agent uses them.
+*Marks the trail before others follow.*
 
-## How it works
+An expedition-based TDD workflow for AI coding agents, built on top of [Superpowers](https://github.com/obra/superpowers).
 
-It starts from the moment you fire up your coding agent. As soon as it sees that you're building something, it *doesn't* just jump into trying to write code. Instead, it steps back and asks you what you're really trying to do. 
+Pathfinder layers **phase enforcement, task tracking, and quality scoring** on top of Superpowers' composable skill engine. Scouts write failing tests, Builders implement, and git hooks ensure nobody skips steps.
 
-Once it's teased a spec out of the conversation, it shows it to you in chunks short enough to actually read and digest. 
+## How It Works
 
-After you've signed off on the design, your agent puts together an implementation plan that's clear enough for an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing to follow. It emphasizes true red/green TDD, YAGNI (You Aren't Gonna Need It), and DRY. 
+```
+/survey  →  /scout  →  /build  →  /report
+   │           │          │          │
+brainstorm   write      implement   verify
++ design     failing    minimal     + quality
+approval     tests      code        score + PR
+```
 
-Next up, once you say "go", it launches a *subagent-driven-development* process, having agents work through each engineering task, inspecting and reviewing their work, and continuing forward. It's not uncommon for Claude to be able to work autonomously for a couple hours at a time without deviating from the plan you put together.
+### Phase Gates (Enforced)
 
-There's a bunch more to it, but that's the core of the system. And because the skills trigger automatically, you don't need to do anything special. Your coding agent just has Superpowers.
+| Phase | What happens | Gate file |
+|-------|-------------|-----------|
+| **Survey** | Understand problem, explore approaches, get design approval | `survey.json` |
+| **Plan** | Break design into bite-sized tasks with dependencies | `plan.json` + `tasks/*.json` |
+| **Scout** | Write ALL failing tests (TDD RED phase) | `scout.json` |
+| **Build** | Implement minimal code to pass tests (TDD GREEN phase) | `build.json` |
+| **Report** | Verify independently, compute quality score, create PR | `report.json` |
 
+**You cannot skip phases.** Git hooks enforce this:
+- No source code during survey/plan/scout
+- No build gate without scout gate
+- No push to main (feature branches only)
 
-## Sponsorship
+### Task-Level Tracking
 
-If Superpowers has helped you do stuff that makes money and you are so inclined, I'd greatly appreciate it if you'd consider [sponsoring my opensource work](https://github.com/sponsors/obra).
+Each checkpoint is a JSON file in `.pathfinder/tasks/`:
 
-Thanks! 
+```json
+{
+  "id": "FEAT-01",
+  "status": "green",
+  "dependencies": ["FEAT-00"],
+  "evidence": {
+    "red": { "e2e": "FAIL ...", "timestamp": "..." },
+    "green": { "e2e": "PASS ...", "fullSuite": "42 passed, 0 failed", "timestamp": "..." }
+  }
+}
+```
 
-- Jesse
+Status lifecycle: `planned` → `red` → `green` → `verified`
 
+### Quality Score (0-100)
+
+| Criterion | Points |
+|-----------|--------|
+| All tests pass | 25 |
+| Evidence complete | 20 |
+| No regressions | 20 |
+| Branch hygiene | 15 |
+| PR created | 10 |
+| All verified | 10 |
+
+🟢 90-100: Merge-ready | 🟡 70-89: Review carefully | 🔴 <70: Fix first
+
+## Built on Superpowers
+
+Pathfinder keeps ALL of Superpowers' skills and adds expedition structure:
+
+| Pathfinder Skill | Wraps Superpowers Skill |
+|-----------------|------------------------|
+| `pathfinder:surveying` | `superpowers:brainstorming` |
+| `pathfinder:planning` | `superpowers:writing-plans` |
+| `pathfinder:scouting` | `superpowers:test-driven-development` |
+| `pathfinder:building` | `superpowers:subagent-driven-development` |
+| `pathfinder:reporting` | `superpowers:verification-before-completion` + `superpowers:finishing-a-development-branch` |
+
+All Superpowers skills remain available: systematic-debugging, code-review, git-worktrees, parallel-agents, etc.
 
 ## Installation
 
-**Note:** Installation differs by platform. Claude Code or Cursor have built-in plugin marketplaces. Codex and OpenCode require manual setup.
-
-
-### Claude Code (via Plugin Marketplace)
-
-In Claude Code, register the marketplace first:
+### Claude Code (via Plugin)
 
 ```bash
+# Register marketplace (if not already)
 /plugin marketplace add obra/superpowers-marketplace
+
+# Install Pathfinder
+/plugin install pathfinder
 ```
 
-Then install the plugin from this marketplace:
+### Manual (any agent)
 
 ```bash
-/plugin install superpowers@superpowers-marketplace
+git clone https://github.com/srhenrybot-hub/superpowers.git ~/.pathfinder
+cd your-project
+git config core.hooksPath ~/.pathfinder/.githooks
 ```
 
-### Cursor (via Plugin Marketplace)
+### OpenClaw
 
-In Cursor Agent chat, install from marketplace:
-
-```text
-/plugin-add superpowers
+Symlink to skills directory:
+```bash
+ln -s /path/to/pathfinder ~/.npm-global/lib/node_modules/openclaw/skills/pathfinder
 ```
 
-### Codex
-
-Tell Codex:
-
-```
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.codex/INSTALL.md
-```
-
-**Detailed docs:** [docs/README.codex.md](docs/README.codex.md)
-
-### OpenCode
-
-Tell OpenCode:
-
-```
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.opencode/INSTALL.md
-```
-
-**Detailed docs:** [docs/README.opencode.md](docs/README.opencode.md)
-
-### Verify Installation
-
-Start a new session in your chosen platform and ask for something that should trigger a skill (for example, "help me plan this feature" or "let's debug this issue"). The agent should automatically invoke the relevant superpowers skill.
-
-## The Basic Workflow
-
-1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections for validation. Saves design document.
-
-2. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
-
-3. **writing-plans** - Activates with approved design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
-
-4. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh subagent per task with two-stage review (spec compliance, then code quality), or executes in batches with human checkpoints.
-
-5. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
-
-6. **requesting-code-review** - Activates between tasks. Reviews against plan, reports issues by severity. Critical issues block progress.
-
-7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
-
-**The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
-
-## What's Inside
-
-### Skills Library
-
-**Testing**
-- **test-driven-development** - RED-GREEN-REFACTOR cycle (includes testing anti-patterns reference)
-
-**Debugging**
-- **systematic-debugging** - 4-phase root cause process (includes root-cause-tracing, defense-in-depth, condition-based-waiting techniques)
-- **verification-before-completion** - Ensure it's actually fixed
-
-**Collaboration** 
-- **brainstorming** - Socratic design refinement
-- **writing-plans** - Detailed implementation plans
-- **executing-plans** - Batch execution with checkpoints
-- **dispatching-parallel-agents** - Concurrent subagent workflows
-- **requesting-code-review** - Pre-review checklist
-- **receiving-code-review** - Responding to feedback
-- **using-git-worktrees** - Parallel development branches
-- **finishing-a-development-branch** - Merge/PR decision workflow
-- **subagent-driven-development** - Fast iteration with two-stage review (spec compliance, then code quality)
-
-**Meta**
-- **writing-skills** - Create new skills following best practices (includes testing methodology)
-- **using-superpowers** - Introduction to the skills system
-
-## Philosophy
-
-- **Test-Driven Development** - Write tests first, always
-- **Systematic over ad-hoc** - Process over guessing
-- **Complexity reduction** - Simplicity as primary goal
-- **Evidence over claims** - Verify before declaring success
-
-Read more: [Superpowers for Claude Code](https://blog.fsck.com/2025/10/09/superpowers/)
-
-## Contributing
-
-Skills live directly in this repository. To contribute:
-
-1. Fork the repository
-2. Create a branch for your skill
-3. Follow the `writing-skills` skill for creating and testing new skills
-4. Submit a PR
-
-See `skills/writing-skills/SKILL.md` for the complete guide.
-
-## Updating
-
-Skills update automatically when you update the plugin:
+## Quick Reference
 
 ```bash
-/plugin update superpowers
+# Start expedition
+/survey
+
+# Write failing tests
+/scout
+
+# Implement
+/build
+
+# Verify + PR
+/report
+
+# Check expedition status
+cat .pathfinder/state.json
+
+# Check dependencies
+bash scripts/pathfinder-check-deps.sh FEAT-01
+
+# Run quality verification
+bash scripts/verify-expedition.sh
 ```
+
+## Credits
+
+- [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent — the skill engine and workflow foundation
+- Expedition metaphor and enforcement layer by [srpadrono](https://github.com/srpadrono)
 
 ## License
 
-MIT License - see LICENSE file for details
-
-## Support
-
-- **Issues**: https://github.com/obra/superpowers/issues
-- **Marketplace**: https://github.com/obra/superpowers-marketplace
+MIT
