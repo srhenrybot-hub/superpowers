@@ -128,6 +128,13 @@ bash scripts/pathfinder-check-deps.sh FEAT-01
 bash scripts/verify-expedition.sh
 ```
 
+## Documentation
+
+- **[Workflow Guide](docs/workflow.md)** — Complete expedition walkthrough with examples
+- **[Architecture](docs/architecture.md)** — How Pathfinder layers on Superpowers
+- **[Installation](docs/installation.md)** — Setup for Claude Code, OpenClaw, or any project
+- **[Testing](docs/testing.md)** — How to test scripts, hooks, and skills
+
 ## Credits
 
 - [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent — the skill engine and workflow foundation
