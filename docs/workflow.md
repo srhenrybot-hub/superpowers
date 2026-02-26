@@ -103,11 +103,12 @@ That's it. Each command triggers the corresponding Pathfinder skill.
 | Criterion | Points |
 |-----------|--------|
 | All tests pass | 25 |
-| Evidence complete | 20 |
+| Evidence complete | 15 |
 | No regressions | 20 |
-| Branch hygiene | 15 |
+| Branch hygiene | 10 |
 | PR created | 10 |
 | All verified | 10 |
+| Documentation complete | 10 |
 
 **Thresholds:**
 - 🟢 **90-100:** Merge-ready

@@ -71,14 +71,14 @@ print('yes' if t.get('evidence',{}).get('green') else 'no')
 done
 
 if [ "$TASK_COUNT" -gt 0 ]; then
-  EVIDENCE_SCORE=$((20 * EVIDENCE_COUNT / TASK_COUNT))
+  EVIDENCE_SCORE=$((15 * EVIDENCE_COUNT / TASK_COUNT))
   VERIFIED_SCORE=$((10 * VERIFIED_COUNT / TASK_COUNT))
 else
   EVIDENCE_SCORE=0
   VERIFIED_SCORE=0
 fi
 SCORE=$((SCORE + EVIDENCE_SCORE + VERIFIED_SCORE))
-echo "  Evidence: $EVIDENCE_COUNT/$TASK_COUNT ($EVIDENCE_SCORE/20 pts)"
+echo "  Evidence: $EVIDENCE_COUNT/$TASK_COUNT ($EVIDENCE_SCORE/15 pts)"
 echo "  Verified: $VERIFIED_COUNT/$TASK_COUNT ($VERIFIED_SCORE/10 pts)"
 echo ""
 
@@ -109,24 +109,46 @@ echo "📋 Branch Hygiene"
 BRANCH_SCORE=0
 if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ]; then
   echo "  ✓ On feature branch: $BRANCH"
-  BRANCH_SCORE=15
+  BRANCH_SCORE=10
 else
   echo "  ✘ On $BRANCH — must use feature branch"
 fi
 SCORE=$((SCORE + BRANCH_SCORE))
 echo ""
 
-# --- 5. PR created (10 pts) ---
+# --- 5. PR created (10 pts) + Documentation (10 pts) ---
 echo "📋 Pull Request"
 PR_SCORE=0
+DOC_SCORE=0
 PR_URL=$(gh pr list --head "$BRANCH" --json url --jq '.[0].url' 2>/dev/null || echo "")
+PR_BODY=$(gh pr list --head "$BRANCH" --json body --jq '.[0].body' 2>/dev/null || echo "")
 if [ -n "$PR_URL" ]; then
   echo "  ✓ PR exists: $PR_URL"
   PR_SCORE=10
+
+  # Check documentation completeness
+  HAS_DEP_GRAPH=false
+  HAS_JOURNEY=false
+  if echo "$PR_BODY" | grep -q "graph TD\|graph LR"; then
+    HAS_DEP_GRAPH=true
+  fi
+  if echo "$PR_BODY" | grep -q "journey"; then
+    HAS_JOURNEY=true
+  fi
+
+  if [ "$HAS_DEP_GRAPH" = true ] && [ "$HAS_JOURNEY" = true ]; then
+    echo "  ✓ Documentation complete (dependency graph + journey map)"
+    DOC_SCORE=10
+  else
+    [ "$HAS_DEP_GRAPH" = false ] && echo "  ⚠ Missing: Mermaid dependency graph"
+    [ "$HAS_JOURNEY" = false ] && echo "  ⚠ Missing: User journey map"
+    echo "  ⚠ Documentation incomplete ($DOC_SCORE/10 pts)"
+  fi
 else
   echo "  ⚠ No PR found for branch $BRANCH"
+  echo "  ⚠ Documentation: cannot check without PR"
 fi
-SCORE=$((SCORE + PR_SCORE))
+SCORE=$((SCORE + PR_SCORE + DOC_SCORE))
 echo ""
 
 # --- 6. Security check ---
@@ -162,11 +184,12 @@ report = {
     'qualityScore': $SCORE,
     'breakdown': {
         'allTestsPass': {'score': $TEST_SCORE, 'max': 25},
-        'evidenceComplete': {'score': $EVIDENCE_SCORE, 'max': 20},
+        'evidenceComplete': {'score': $EVIDENCE_SCORE, 'max': 15},
         'noRegressions': {'score': $REGRESSION_SCORE, 'max': 20},
-        'branchHygiene': {'score': $BRANCH_SCORE, 'max': 15},
+        'branchHygiene': {'score': $BRANCH_SCORE, 'max': 10},
         'prCreated': {'score': $PR_SCORE, 'max': 10},
-        'allVerified': {'score': $VERIFIED_SCORE, 'max': 10}
+        'allVerified': {'score': $VERIFIED_SCORE, 'max': 10},
+        'documentationComplete': {'score': $DOC_SCORE, 'max': 10}
     },
     'pr': {'url': '${PR_URL:-}' or None}
 }

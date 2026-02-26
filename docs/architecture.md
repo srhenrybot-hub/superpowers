@@ -144,11 +144,12 @@ planned ──→ red ──→ green ──→ verified
 | Criterion | Points | Enforcement |
 |-----------|--------|-------------|
 | All tests pass | 25 | verify-expedition.sh runs test suite |
-| Evidence complete | 20 | Checks task files for evidence.green |
+| Evidence complete | 15 | Checks task files for evidence.green |
 | No regressions | 20 | Full suite, not just new tests |
-| Branch hygiene | 15 | Reads state.json branch field |
+| Branch hygiene | 10 | Reads state.json branch field |
 | PR created | 10 | Queries gh CLI |
 | All verified | 10 | Checks task status === verified |
+| Documentation complete | 10 | PR has Mermaid dependency graph + user journey map |
 
 Thresholds: 🟢 90+ merge-ready | 🟡 70-89 review carefully | 🔴 <70 fix first
 

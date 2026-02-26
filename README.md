@@ -54,11 +54,12 @@ Status lifecycle: `planned` → `red` → `green` → `verified`
 | Criterion | Points |
 |-----------|--------|
 | All tests pass | 25 |
-| Evidence complete | 20 |
+| Evidence complete | 15 |
 | No regressions | 20 |
-| Branch hygiene | 15 |
+| Branch hygiene | 10 |
 | PR created | 10 |
 | All verified | 10 |
+| Documentation (graphs + journey) | 10 |
 
 🟢 90-100: Merge-ready | 🟡 70-89: Review carefully | 🔴 <70: Fix first
 

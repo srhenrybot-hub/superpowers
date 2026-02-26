@@ -67,11 +67,12 @@ This computes a 0-100 quality score:
 | Criterion | Points | Check |
 |-----------|--------|-------|
 | All checkpoint tests pass | 25 | Run test suite, 0 failures |
-| Evidence complete | 20 | Every task has `evidence.green` filled |
+| Evidence complete | 15 | Every task has `evidence.green` filled |
 | No regressions | 20 | Full suite passes (not just new tests) |
-| Branch hygiene | 15 | On feature branch, not main/master |
+| Branch hygiene | 10 | On feature branch, not main/master |
 | PR created | 10 | PR exists for this branch |
 | All verified | 10 | Every task has `status: "verified"` |
+| Documentation complete | 10 | PR has dependency graph + user journey map |
 
 **Thresholds:**
 - 🟢 **90-100:** Excellent — merge-ready
@@ -104,7 +105,18 @@ json.dump(report, open('.pathfinder/report.json', 'w'), indent=2)
 
 ### Step 5: Create PR
 
-Follow `superpowers:finishing-a-development-branch`:
+Follow `superpowers:finishing-a-development-branch`.
+
+<HARD-GATE>
+The PR body MUST include:
+1. Mermaid dependency graph showing all checkpoints with status
+2. User journey map (Mermaid journey diagram)
+3. Checkpoint table with test counts
+4. Quality score breakdown
+5. Test results
+
+Missing any of these = documentation incomplete = -10 points on quality score.
+</HARD-GATE>
 
 ```bash
 git add .pathfinder/
@@ -117,19 +129,46 @@ gh pr create \
 **Expedition:** <name>
 **Quality Score:** <score>/100
 
+### Dependency Graph
+
+\`\`\`mermaid
+graph TD
+    FEAT-01[\"✅ FEAT-01: Description\"] --> FEAT-03[\"✅ FEAT-03: Description\"]
+    FEAT-02[\"✅ FEAT-02: Description\"] --> FEAT-03
+    style FEAT-01 fill:#22c55e,color:#fff
+    style FEAT-02 fill:#22c55e,color:#fff
+    style FEAT-03 fill:#22c55e,color:#fff
+\`\`\`
+
+### User Journey Map
+
+\`\`\`mermaid
+journey
+    title <Feature Name>
+    section <First Flow>
+      Step one: 5: User
+      Step two: 5: App
+    section <Second Flow>
+      Step three: 5: User
+\`\`\`
+
 ### Checkpoints
-| ID | Description | Status |
-|----|-------------|--------|
-| FEAT-01 | ... | ✅ verified |
-| FEAT-02 | ... | ✅ verified |
+| ID | Description | Tests | Status |
+|----|-------------|-------|--------|
+| FEAT-01 | ... | N unit | ✅ verified |
+| FEAT-02 | ... | N unit, N e2e | ✅ verified |
 
 ### Quality Breakdown
-- All tests pass: <n>/25
-- Evidence complete: <n>/20
-- No regressions: <n>/20
-- Branch hygiene: <n>/15
-- PR created: <n>/10
-- All verified: <n>/10
+| Criterion | Score |
+|-----------|-------|
+| All tests pass | <n>/25 |
+| Evidence complete | <n>/15 |
+| No regressions | <n>/20 |
+| Branch hygiene | <n>/10 |
+| PR created | <n>/10 |
+| All verified | <n>/10 |
+| Documentation complete | <n>/10 |
+| **Total** | **<n>/100** |
 
 ### Test Results
 \`\`\`
