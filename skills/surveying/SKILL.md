@@ -49,7 +49,25 @@ After surveying, propose 2-3 approaches with trade-offs:
 - Note risks and dependencies
 - Get sign-off before continuing
 
-### Step 4: Create Expedition State
+### Step 4: Detect Test Runners
+
+Before creating state, detect the project's test frameworks:
+
+| File found | Set e2e to | Set unit to |
+|------------|-----------|-------------|
+| `playwright.config.ts` | `playwright` | — |
+| `e2e/.maestro/config.yaml` | `maestro` | — |
+| `cypress.config.ts` | `cypress` | — |
+| `.detoxrc.js` | `detox` | — |
+| `vitest.config.ts` | — | `vitest` |
+| `jest.config.*` | — | `jest` |
+| `pytest.ini` / `pyproject.toml` | — | `pytest` |
+| `go.mod` | — | `gotest` |
+| `Package.swift` | — | `xctest` |
+
+If nothing detected, ask the user. Default: `playwright` + `vitest`.
+
+### Step 5: Create Expedition State
 
 After design approval, create the expedition state:
 
@@ -62,6 +80,10 @@ cat > .pathfinder/state.json << 'EOF'
   "expedition": "<expedition-name>",
   "branch": "feat/<expedition-name>",
   "currentPhase": "survey",
+  "testRunners": {
+    "e2e": "<detected-e2e-runner>",
+    "unit": "<detected-unit-runner>"
+  },
   "phases": {
     "survey":  { "status": "approved",  "timestamp": "<ISO-8601>" },
     "plan":    { "status": "pending",   "timestamp": null },
@@ -80,7 +102,7 @@ cat > .pathfinder/state.json << 'EOF'
 EOF
 ```
 
-### Step 5: Create Survey Gate
+### Step 6: Create Survey Gate
 
 ```bash
 cat > .pathfinder/survey.json << 'EOF'
@@ -100,14 +122,14 @@ cat > .pathfinder/survey.json << 'EOF'
 EOF
 ```
 
-### Step 6: Commit
+### Step 7: Commit
 
 ```bash
 git add .pathfinder/state.json .pathfinder/survey.json
 git commit -m "Survey: Approve design for <expedition-name>"
 ```
 
-### Step 7: Transition to Planning
+### Step 8: Transition to Planning
 
 Announce: "Survey complete. Ready for planning — invoke `pathfinder:planning` or say `/scout` to continue."
 

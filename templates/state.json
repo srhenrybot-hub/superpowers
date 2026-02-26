@@ -3,6 +3,10 @@
   "expedition": "<expedition-name>",
   "branch": "feat/<expedition-name>",
   "currentPhase": "survey",
+  "testRunners": {
+    "e2e": "playwright",
+    "unit": "vitest"
+  },
   "phases": {
     "survey":  { "status": "pending", "timestamp": null },
     "plan":    { "status": "pending", "timestamp": null },

@@ -73,6 +73,29 @@ On session start, check for `.pathfinder/state.json`:
 - If it exists, read it and announce current phase + progress
 - If not, you're starting fresh — wait for `/survey` or a feature request
 
+## Test Runner Configuration
+
+Pathfinder is test-framework agnostic. During survey, detect the project type and set runners in `state.json`:
+
+```json
+{
+  "testRunners": {
+    "e2e": "playwright",
+    "unit": "vitest"
+  }
+}
+```
+
+| Project type | e2e | unit |
+|-------------|-----|------|
+| Next.js / React web | `playwright` | `vitest` |
+| React Native / Expo | `maestro` | `jest` |
+| FastAPI / Django | `pytest` | `pytest` |
+| Native iOS | `xcuitest` | `xctest` |
+| Native Android | `espresso` | `gotest` |
+
+Read `testRunners` from `state.json` before running any test commands. See `docs/test-runners.md` for the full command reference per framework.
+
 ## Quick Reference
 
 ```bash

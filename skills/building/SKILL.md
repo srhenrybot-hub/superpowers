@@ -38,25 +38,15 @@ If blocked, skip to the next unblocked checkpoint. Report which are blocked and 
 
 ### Step 2: Build ONE Checkpoint at a Time
 
+Read `testRunners` from `.pathfinder/state.json` to determine which commands to use. See `docs/test-runners.md` for the full command reference.
+
 For each unblocked checkpoint, follow this strict loop:
 
 1. **Read the task file** to understand what this checkpoint requires
-2. **Run the failing test** to see the current error:
-   ```bash
-   npx playwright test --grep "FEAT-01" --reporter=list
-   npx vitest run --testNamePattern "FEAT-01"
-   ```
+2. **Run the failing test** to see the current error (using configured e2e + unit runners)
 3. **Write minimal implementation code** to make the test pass
-4. **Run the test again** to verify it passes:
-   ```bash
-   npx playwright test --grep "FEAT-01" --reporter=list
-   npx vitest run --testNamePattern "FEAT-01"
-   ```
-5. **Run the full suite** to check for regressions:
-   ```bash
-   npx playwright test --reporter=list
-   npx vitest run
-   ```
+4. **Run the test again** to verify it passes
+5. **Run the full suite** to check for regressions
 
 ### Step 3: Update Task File
 
@@ -139,12 +129,16 @@ You are a BUILDER for checkpoint FEAT-01 in a Pathfinder expedition.
 
 TASK: <checkpoint description>
 
+TEST RUNNERS (from state.json):
+- e2e: <e2e runner> (see docs/test-runners.md for commands)
+- unit: <unit runner>
+
 BEFORE YOU START:
 1. Run: bash scripts/pathfinder-check-deps.sh FEAT-01
 2. If blocked, report back immediately — do NOT proceed.
 
 BUILD LOOP:
-1. Run failing test: <test command>
+1. Run failing test using the configured runner
 2. Write minimal code to pass it
 3. Run test again — must PASS
 4. Run full suite — must not regress

@@ -37,16 +37,13 @@ done
 
 ### Step 2: For Each Checkpoint (in dependency order)
 
+Read `testRunners` from `.pathfinder/state.json` to determine which commands to use. See `docs/test-runners.md` for the full command reference.
+
 Follow `superpowers:test-driven-development` RED phase:
 
-1. **Write the e2e test** — Playwright/Maestro/Cypress test that verifies the checkpoint
-2. **Write the unit test** — Co-located unit tests for the logic
-3. **Run tests to verify they FAIL:**
-   ```bash
-   npx playwright test --grep "<CHECKPOINT-ID>" --reporter=list
-   # or
-   npx vitest run --testNamePattern "<CHECKPOINT-ID>"
-   ```
+1. **Write the e2e test** — using the configured e2e runner (Playwright, Maestro, Cypress, etc.)
+2. **Write the unit test** — using the configured unit runner (Vitest, Jest, pytest, etc.)
+3. **Run tests to verify they FAIL** using the appropriate runner commands
 4. **Verify the failure is correct** — should fail because feature doesn't exist, NOT because of typos or test bugs
 
 ### Step 3: Capture Evidence in Task File
@@ -106,12 +103,7 @@ json.dump(state, open('.pathfinder/state.json', 'w'), indent=2)
 
 ### Step 7: Final Verification
 
-Run ALL tests together to confirm they all fail:
-
-```bash
-npx playwright test --reporter=list
-npx vitest run
-```
+Run ALL tests together to confirm they all fail using the configured runners (e.g. `npx playwright test`, `maestro test e2e/flows/`, `npx vitest run`, `npx jest`, etc.).
 
 Commit the scout gate:
 

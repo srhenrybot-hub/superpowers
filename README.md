@@ -132,6 +132,7 @@ bash scripts/verify-expedition.sh
 
 - **[Workflow Guide](docs/workflow.md)** — Complete expedition walkthrough with examples
 - **[Scenarios](docs/scenarios.md)** — Greenfield, new features, and refactoring
+- **[Test Runners](docs/test-runners.md)** — Playwright, Maestro, Cypress, pytest, and more
 - **[Architecture](docs/architecture.md)** — How Pathfinder layers on Superpowers
 - **[Installation](docs/installation.md)** — Setup for Claude Code, OpenClaw, or any project
 - **[Testing](docs/testing.md)** — How to test scripts, hooks, and skills

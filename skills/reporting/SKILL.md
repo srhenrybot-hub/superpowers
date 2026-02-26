@@ -28,22 +28,18 @@ No completion claims without fresh verification evidence.
 
 ### Step 1: Independent Verification
 
-Do NOT trust builder evidence. Re-run everything fresh:
+Do NOT trust builder evidence. Re-run everything fresh using the configured test runners from `state.json`. See `docs/test-runners.md` for commands.
 
 ```bash
-# Run full test suite
-npx playwright test --reporter=list 2>&1 | tee /tmp/pathfinder-verify.txt
-npx vitest run 2>&1 | tee -a /tmp/pathfinder-verify.txt
+# Run full test suite (use configured runners)
+# e.g. npx playwright test, maestro test, pytest, etc.
+<e2e runner command> 2>&1 | tee /tmp/pathfinder-verify.txt
+<unit runner command> 2>&1 | tee -a /tmp/pathfinder-verify.txt
 ```
 
 ### Step 2: Verify Each Checkpoint
 
-For each task file with `status: "green"`:
-
-```bash
-npx playwright test --grep "FEAT-01" --reporter=list
-npx vitest run --testNamePattern "FEAT-01"
-```
+For each task file with `status: "green"`, run its tests individually using the configured runners.
 
 If tests pass, update task to `verified`:
 
@@ -167,10 +163,11 @@ YOUR JOB: Independently run tests for checkpoints marked "green".
 Do NOT trust the builder's evidence. Run the tests yourself.
 
 For each .pathfinder/tasks/*.json where status is "green":
-1. Run: npx playwright test --grep "<checkpoint-id>" --reporter=list
-2. Run: npx vitest run --testNamePattern "<checkpoint-id>"
-3. If BOTH pass: update status to "verified", fill evidence.verified
-4. If EITHER fails: update status back to "red", note the failure
+1. Run e2e tests for this checkpoint (using configured runner from state.json)
+2. Run unit tests for this checkpoint (using configured runner from state.json)
+3. See docs/test-runners.md for the exact commands per framework
+4. If BOTH pass: update status to "verified", fill evidence.verified
+5. If EITHER fails: update status back to "red", note the failure
 
 Do NOT modify any source code or test code. Only update task JSON files.
 ```
